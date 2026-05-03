@@ -2,249 +2,411 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Users, Check, ArrowRight, ArrowLeft } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Check, ChevronRight, Calendar, Users, User, Mail, MessageSquare } from "lucide-react";
-
-const FOREST = "#1e3a2f";
-const GOLD = "#c9a84c";
 
 const roomOptions = [
-  { value: "6bed", label: "6-Bed Dormitory", price: "₹400/night" },
-  { value: "4bed", label: "4-Bed Dormitory", price: "₹600/night" },
-  { value: "deluxe", label: "Deluxe Room", price: "₹1,200/night" },
-  { value: "luxury", label: "Luxury Room", price: "₹2,000/night" },
+  { value: "6-Bed Dorm",    label: "6-Bed Dorm",    price: "₹400 / bed" },
+  { value: "4-Bed Dorm",    label: "4-Bed Dorm",    price: "₹600 / bed" },
+  { value: "Deluxe Room",   label: "Deluxe Room",   price: "₹1,800 / room" },
+  { value: "Luxury Room",   label: "Luxury Room",   price: "₹3,200 / room" },
 ];
 
-type FormData = {
-  checkin: string; checkout: string; guests: string; room: string;
-  name: string; email: string; phone: string; requests: string;
+const inputCls =
+  "w-full px-4 py-3 rounded-xl text-sm border outline-none transition-all focus:ring-2";
+const inputStyle = {
+  borderColor: "rgba(27,67,50,0.2)",
+  background: "#fff",
+  color: "#1a1a1a",
 };
+const focusRing = { "--tw-ring-color": "rgba(27,67,50,0.3)" } as React.CSSProperties;
+
+type Step1 = { checkIn: string; checkOut: string; guests: string; room: string };
+type Step2 = { name: string; email: string; phone: string; requests: string };
+
+const defaultStep1: Step1 = { checkIn: "", checkOut: "", guests: "1", room: "" };
+const defaultStep2: Step2 = { name: "", email: "", phone: "", requests: "" };
 
 export default function BookingPage() {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<FormData>({
-    checkin: "", checkout: "", guests: "1", room: "",
-    name: "", email: "", phone: "", requests: "",
-  });
+  const [step1, setStep1] = useState<Step1>(defaultStep1);
+  const [step2, setStep2] = useState<Step2>(defaultStep2);
   const [confirmed, setConfirmed] = useState(false);
 
-  const set = (k: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-    setForm((p) => ({ ...p, [k]: e.target.value }));
+  const handleStep1 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!step1.checkIn || !step1.checkOut || !step1.room) return;
+    setStep(2);
+  };
 
-  const step1Valid = form.checkin && form.checkout && form.room;
-  const step2Valid = form.name && form.email;
+  const handleStep2 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!step2.name || !step2.email) return;
+    setConfirmed(true);
+  };
 
-  const fieldCls = "w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all focus:ring-2";
-  const fieldStyle = { borderColor: "rgba(30,58,47,0.2)", background: "#fff", color: "#222" };
-  const labelCls = "block text-xs font-semibold uppercase tracking-wider mb-1.5";
+  const selectedRoom = roomOptions.find((r) => r.value === step1.room);
 
-  const selectedRoom = roomOptions.find((r) => r.value === form.room);
+  const today = new Date().toISOString().split("T")[0];
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-5 pt-24 pb-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-lg w-full text-center p-10 rounded-3xl"
+          style={{ background: "#fff", border: "1px solid rgba(27,67,50,0.1)", boxShadow: "0 20px 80px rgba(0,0,0,0.1)" }}
+        >
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+            style={{ background: "rgba(27,67,50,0.08)" }}
+          >
+            <Check size={36} style={{ color: "#1b4332" }} />
+          </div>
+          <h2
+            className="text-3xl font-bold mb-3"
+            style={{ fontFamily: "var(--font-playfair, serif)", color: "#1b4332" }}
+          >
+            Booking Confirmed!
+          </h2>
+          <div
+            className="h-px max-w-[80px] mx-auto mb-5"
+            style={{ background: "linear-gradient(90deg, transparent, #c9a84c, transparent)" }}
+          />
+          <p className="text-gray-600 text-sm mb-8 leading-relaxed">
+            Thank you, <strong>{step2.name}</strong>! Your reservation request for the{" "}
+            <strong>{step1.room}</strong> has been received. We'll send a confirmation
+            to <strong>{step2.email}</strong> shortly.
+          </p>
+
+          <div
+            className="p-5 rounded-xl text-left text-sm space-y-2 mb-8"
+            style={{ background: "#f0ebe1" }}
+          >
+            <div className="flex justify-between">
+              <span className="text-gray-500">Room</span>
+              <span className="font-semibold" style={{ color: "#1b4332" }}>{step1.room}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Check-in</span>
+              <span className="font-semibold" style={{ color: "#1b4332" }}>{step1.checkIn}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Check-out</span>
+              <span className="font-semibold" style={{ color: "#1b4332" }}>{step1.checkOut}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Guests</span>
+              <span className="font-semibold" style={{ color: "#1b4332" }}>{step1.guests}</span>
+            </div>
+            {selectedRoom && (
+              <div className="flex justify-between border-t pt-2 mt-2" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+                <span className="text-gray-500">Rate</span>
+                <span className="font-bold" style={{ color: "#c9a84c" }}>{selectedRoom.price}</span>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => { setStep(1); setStep1(defaultStep1); setStep2(defaultStep2); setConfirmed(false); }}
+            className="px-8 py-3 rounded-full text-sm font-semibold text-white transition-all hover:opacity-90"
+            style={{ background: "#1b4332" }}
+          >
+            Make Another Booking
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* Hero */}
-      <section className="pt-36 pb-16 px-6" style={{ background: `linear-gradient(135deg,#0e2218,${FOREST})` }}>
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="text-xs uppercase tracking-widest mb-3" style={{ color: GOLD }}>Reservations</motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-5xl md:text-6xl font-bold text-white" style={{ fontFamily: "'Playfair Display',serif" }}>
-            Book Your Stay
-          </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="mt-4 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
-            From ₹400/night · Check-in 1:00 PM · Check-out 10:00 AM
-          </motion.p>
-        </div>
+      {/* Header */}
+      <section
+        className="pt-36 pb-20 px-5 text-center relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #0f2d1e 0%, #1b4332 60%, #2d6a4f 100%)" }}
+      >
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "#c9a84c" }}>Reserve Your Stay</p>
+          <h1 className="text-5xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-playfair, serif)" }}>
+            Book Now
+          </h1>
+          <div className="h-px max-w-[80px] mx-auto mb-5" style={{ background: "linear-gradient(90deg, transparent, #c9a84c, transparent)" }} />
+          <p className="text-white/65 max-w-md mx-auto text-sm">
+            Starting from ₹400 / night · Check-in 1 PM · Check-out 10 AM
+          </p>
+        </motion.div>
       </section>
 
-      <section className="py-16 px-6">
-        <div className="max-w-2xl mx-auto">
-          {/* Step indicators */}
-          {!confirmed && (
-            <div className="flex items-center justify-center gap-4 mb-12">
-              {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
-                    style={{
-                      background: step >= s ? FOREST : "rgba(30,58,47,0.1)",
-                      color: step >= s ? "#fff" : "#999",
-                    }}>
-                    {step > s ? <Check size={14} /> : s}
-                  </div>
-                  <span className="text-xs font-medium hidden sm:block"
-                    style={{ color: step >= s ? FOREST : "#aaa" }}>
-                    {s === 1 ? "Stay Details" : s === 2 ? "Your Info" : "Confirm"}
-                  </span>
-                  {s < 3 && <ChevronRight size={14} style={{ color: "#ccc" }} />}
+      {/* Progress */}
+      <div className="py-8 px-5">
+        <div className="max-w-xl mx-auto">
+          <div className="flex items-center gap-4">
+            {[1, 2].map((s) => (
+              <div key={s} className="flex items-center gap-3 flex-1">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-all"
+                  style={{
+                    background: s <= step ? "#1b4332" : "rgba(27,67,50,0.1)",
+                    color: s <= step ? "#fff" : "#1b4332",
+                  }}
+                >
+                  {s < step ? <Check size={14} /> : s}
                 </div>
-              ))}
-            </div>
-          )}
+                <span className="text-xs font-medium" style={{ color: s <= step ? "#1b4332" : "#aaa" }}>
+                  {s === 1 ? "Stay Details" : "Your Info"}
+                </span>
+                {s < 2 && (
+                  <div
+                    className="h-px flex-1 transition-all"
+                    style={{ background: step > 1 ? "#c9a84c" : "rgba(0,0,0,0.1)" }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
+      {/* Forms */}
+      <section className="pb-24 px-5">
+        <div className="max-w-xl mx-auto">
           <AnimatePresence mode="wait">
-            {confirmed ? (
-              <motion.div key="confirmed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-16 px-8 rounded-3xl"
-                style={{ background: "#fff", border: `2px solid ${GOLD}` }}>
-                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-                  style={{ background: "rgba(201,168,76,0.12)" }}>
-                  <Check size={28} style={{ color: GOLD }} />
-                </div>
-                <h2 className="text-3xl font-bold mb-3" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>
-                  Booking Confirmed!
-                </h2>
-                <p className="text-sm mb-2" style={{ color: "#555" }}>
-                  Thank you, <strong>{form.name}</strong>! We&apos;ve received your request.
-                </p>
-                <p className="text-sm mb-8" style={{ color: "#777" }}>
-                  A confirmation will be sent to <strong>{form.email}</strong> shortly.
-                </p>
-                <div className="p-5 rounded-2xl text-left mb-8 text-sm space-y-2"
-                  style={{ background: "#f8f4ed", border: "1px solid rgba(201,168,76,0.2)" }}>
-                  <p><span style={{ color: GOLD }} className="font-semibold">Room:</span> {selectedRoom?.label}</p>
-                  <p><span style={{ color: GOLD }} className="font-semibold">Check-in:</span> {form.checkin}</p>
-                  <p><span style={{ color: GOLD }} className="font-semibold">Check-out:</span> {form.checkout}</p>
-                  <p><span style={{ color: GOLD }} className="font-semibold">Guests:</span> {form.guests}</p>
-                </div>
-                <button onClick={() => { setConfirmed(false); setStep(1); setForm({ checkin:"",checkout:"",guests:"1",room:"",name:"",email:"",phone:"",requests:"" }); }}
-                  className="px-8 py-3 rounded-full text-sm font-semibold transition-all hover:shadow-lg"
-                  style={{ background: FOREST, color: "#fff" }}>
-                  Make Another Booking
-                </button>
-              </motion.div>
-            ) : step === 1 ? (
-              <motion.div key="s1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="p-8 rounded-3xl space-y-6" style={{ background: "#fff", boxShadow: "0 4px 40px rgba(0,0,0,0.07)" }}>
-                <h2 className="text-2xl font-bold" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>Stay Details</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls} style={{ color: FOREST }}>Check-in Date</label>
-                    <div className="relative">
-                      <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                      <input type="date" value={form.checkin} onChange={set("checkin")}
-                        min={new Date().toISOString().split("T")[0]}
-                        className={`${fieldCls} pl-10 focus:ring-[${FOREST}]`} style={fieldStyle} />
+            {step === 1 && (
+              <motion.form
+                key="step1"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35 }}
+                onSubmit={handleStep1}
+                className="space-y-5"
+              >
+                <div
+                  className="p-8 rounded-2xl"
+                  style={{ background: "#fff", border: "1px solid rgba(27,67,50,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}
+                >
+                  <h2 className="text-xl font-bold mb-6" style={{ fontFamily: "var(--font-playfair, serif)", color: "#1b4332" }}>
+                    Stay Details
+                  </h2>
+
+                  {/* Room type */}
+                  <div className="mb-5">
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Room Type *
+                    </label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {roomOptions.map((r) => (
+                        <label
+                          key={r.value}
+                          className="flex items-center justify-between p-3.5 rounded-xl cursor-pointer transition-all"
+                          style={{
+                            border: `1.5px solid ${step1.room === r.value ? "#1b4332" : "rgba(0,0,0,0.1)"}`,
+                            background: step1.room === r.value ? "rgba(27,67,50,0.04)" : "#fff",
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                              style={{ borderColor: step1.room === r.value ? "#1b4332" : "#ccc" }}
+                            >
+                              {step1.room === r.value && (
+                                <div className="w-2 h-2 rounded-full" style={{ background: "#1b4332" }} />
+                              )}
+                            </div>
+                            <span className="text-sm font-medium" style={{ color: "#1a1a1a" }}>{r.label}</span>
+                          </div>
+                          <span className="text-xs font-semibold" style={{ color: "#c9a84c" }}>{r.price}</span>
+                          <input
+                            type="radio"
+                            name="room"
+                            value={r.value}
+                            className="sr-only"
+                            onChange={() => setStep1({ ...step1, room: r.value })}
+                          />
+                        </label>
+                      ))}
                     </div>
                   </div>
-                  <div>
-                    <label className={labelCls} style={{ color: FOREST }}>Check-out Date</label>
-                    <div className="relative">
-                      <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                      <input type="date" value={form.checkout} onChange={set("checkout")}
-                        min={form.checkin || new Date().toISOString().split("T")[0]}
-                        className={`${fieldCls} pl-10`} style={fieldStyle} />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Number of Guests</label>
-                  <div className="relative">
-                    <Users size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                    <select value={form.guests} onChange={set("guests")} className={`${fieldCls} pl-10`} style={fieldStyle}>
-                      {[1,2,3,4,5,6].map((n) => <option key={n} value={n}>{n} guest{n > 1 ? "s" : ""}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Room Type</label>
-                  <div className="grid grid-cols-1 gap-3">
-                    {roomOptions.map((r) => (
-                      <label key={r.value} className="flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all"
-                        style={{
-                          border: `1.5px solid ${form.room === r.value ? GOLD : "rgba(30,58,47,0.15)"}`,
-                          background: form.room === r.value ? "rgba(201,168,76,0.06)" : "#fff",
-                        }}>
-                        <input type="radio" name="room" value={r.value} checked={form.room === r.value} onChange={set("room")} className="accent-[#c9a84c]" />
-                        <span className="flex-1 text-sm font-medium" style={{ color: FOREST }}>{r.label}</span>
-                        <span className="text-sm font-bold" style={{ color: GOLD }}>{r.price}</span>
+
+                  {/* Dates */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                        Check-in *
                       </label>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={() => step1Valid && setStep(2)} disabled={!step1Valid}
-                  className="w-full py-4 rounded-xl text-sm font-semibold transition-all hover:shadow-lg"
-                  style={{ background: step1Valid ? FOREST : "rgba(30,58,47,0.25)", color: "#fff", cursor: step1Valid ? "pointer" : "not-allowed" }}>
-                  Continue to Your Info
-                </button>
-              </motion.div>
-            ) : step === 2 ? (
-              <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="p-8 rounded-3xl space-y-6" style={{ background: "#fff", boxShadow: "0 4px 40px rgba(0,0,0,0.07)" }}>
-                <h2 className="text-2xl font-bold" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>Your Information</h2>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Full Name *</label>
-                  <div className="relative">
-                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                    <input type="text" placeholder="Your full name" value={form.name} onChange={set("name")}
-                      className={`${fieldCls} pl-10`} style={fieldStyle} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Email Address *</label>
-                  <div className="relative">
-                    <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                    <input type="email" placeholder="your@email.com" value={form.email} onChange={set("email")}
-                      className={`${fieldCls} pl-10`} style={fieldStyle} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Phone Number</label>
-                  <div className="relative">
-                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: GOLD }} />
-                    <input type="tel" placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={set("phone")}
-                      className={`${fieldCls} pl-10`} style={fieldStyle} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={{ color: FOREST }}>Special Requests</label>
-                  <div className="relative">
-                    <MessageSquare size={15} className="absolute left-3.5 top-3.5" style={{ color: GOLD }} />
-                    <textarea placeholder="Any special requirements or requests..." value={form.requests} onChange={set("requests")}
-                      rows={3} className={`${fieldCls} pl-10 resize-none`} style={fieldStyle} />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 py-4 rounded-xl text-sm font-semibold transition-all"
-                    style={{ border: `1.5px solid ${FOREST}`, color: FOREST }}>Back</button>
-                  <button onClick={() => step2Valid && setStep(3)} disabled={!step2Valid}
-                    className="flex-1 py-4 rounded-xl text-sm font-semibold transition-all hover:shadow-lg"
-                    style={{ background: step2Valid ? FOREST : "rgba(30,58,47,0.25)", color: "#fff", cursor: step2Valid ? "pointer" : "not-allowed" }}>
-                    Review Booking
-                  </button>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="p-8 rounded-3xl" style={{ background: "#fff", boxShadow: "0 4px 40px rgba(0,0,0,0.07)" }}>
-                <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>Confirm Booking</h2>
-                <div className="space-y-3 mb-8 p-5 rounded-2xl text-sm" style={{ background: "#f8f4ed", border: "1px solid rgba(201,168,76,0.18)" }}>
-                  {[
-                    ["Room", selectedRoom?.label],
-                    ["Check-in", form.checkin],
-                    ["Check-out", form.checkout],
-                    ["Guests", `${form.guests} guest${Number(form.guests) > 1 ? "s" : ""}`],
-                    ["Name", form.name],
-                    ["Email", form.email],
-                    ["Phone", form.phone || "—"],
-                    ["Requests", form.requests || "None"],
-                  ].map(([k, v]) => (
-                    <div key={k} className="flex justify-between gap-4">
-                      <span className="font-semibold" style={{ color: FOREST }}>{k}</span>
-                      <span style={{ color: "#555" }}>{v}</span>
+                      <div className="relative">
+                        <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2d6a4f" }} />
+                        <input
+                          type="date"
+                          min={today}
+                          value={step1.checkIn}
+                          onChange={(e) => setStep1({ ...step1, checkIn: e.target.value })}
+                          required
+                          className={inputCls + " pl-9"}
+                          style={{ ...inputStyle, ...focusRing }}
+                        />
+                      </div>
                     </div>
-                  ))}
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                        Check-out *
+                      </label>
+                      <div className="relative">
+                        <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2d6a4f" }} />
+                        <input
+                          type="date"
+                          min={step1.checkIn || today}
+                          value={step1.checkOut}
+                          onChange={(e) => setStep1({ ...step1, checkOut: e.target.value })}
+                          required
+                          className={inputCls + " pl-9"}
+                          style={{ ...inputStyle, ...focusRing }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Guests */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Number of Guests
+                    </label>
+                    <div className="relative">
+                      <Users size={15} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2d6a4f" }} />
+                      <select
+                        value={step1.guests}
+                        onChange={(e) => setStep1({ ...step1, guests: e.target.value })}
+                        className={inputCls + " pl-9 appearance-none"}
+                        style={{ ...inputStyle, ...focusRing }}
+                      >
+                        {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+                          <option key={n} value={n}>{n} Guest{n > 1 ? "s" : ""}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                  style={{ background: "linear-gradient(135deg, #1b4332, #2d6a4f)" }}
+                >
+                  Continue <ArrowRight size={16} />
+                </button>
+              </motion.form>
+            )}
+
+            {step === 2 && (
+              <motion.form
+                key="step2"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35 }}
+                onSubmit={handleStep2}
+                className="space-y-5"
+              >
+                {/* Summary */}
+                <div
+                  className="p-4 rounded-xl text-sm flex items-center justify-between"
+                  style={{ background: "rgba(27,67,50,0.06)", border: "1px solid rgba(27,67,50,0.12)" }}
+                >
+                  <div>
+                    <p className="font-semibold" style={{ color: "#1b4332" }}>{step1.room}</p>
+                    <p className="text-xs text-gray-500">{step1.checkIn} → {step1.checkOut} · {step1.guests} guest{Number(step1.guests) > 1 ? "s" : ""}</p>
+                  </div>
+                  {selectedRoom && <p className="font-bold text-sm" style={{ color: "#c9a84c" }}>{selectedRoom.price}</p>}
+                </div>
+
+                <div
+                  className="p-8 rounded-2xl space-y-5"
+                  style={{ background: "#fff", border: "1px solid rgba(27,67,50,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}
+                >
+                  <h2 className="text-xl font-bold" style={{ fontFamily: "var(--font-playfair, serif)", color: "#1b4332" }}>
+                    Your Information
+                  </h2>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Arjun Mehta"
+                      value={step2.name}
+                      onChange={(e) => setStep2({ ...step2, name: e.target.value })}
+                      required
+                      className={inputCls}
+                      style={{ ...inputStyle, ...focusRing }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={step2.email}
+                      onChange={(e) => setStep2({ ...step2, email: e.target.value })}
+                      required
+                      className={inputCls}
+                      style={{ ...inputStyle, ...focusRing }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+91 98765 43210"
+                      value={step2.phone}
+                      onChange={(e) => setStep2({ ...step2, phone: e.target.value })}
+                      className={inputCls}
+                      style={{ ...inputStyle, ...focusRing }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#1b4332" }}>
+                      Special Requests
+                    </label>
+                    <textarea
+                      placeholder="Early check-in, airport transfer, dietary needs..."
+                      value={step2.requests}
+                      onChange={(e) => setStep2({ ...step2, requests: e.target.value })}
+                      rows={3}
+                      className={inputCls + " resize-none"}
+                      style={{ ...inputStyle, ...focusRing }}
+                    />
+                  </div>
+                </div>
+
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(2)} className="flex-1 py-4 rounded-xl text-sm font-semibold transition-all"
-                    style={{ border: `1.5px solid ${FOREST}`, color: FOREST }}>Back</button>
-                  <button onClick={() => setConfirmed(true)}
-                    className="flex-1 py-4 rounded-xl text-sm font-semibold transition-all hover:shadow-lg"
-                    style={{ background: `linear-gradient(135deg,${GOLD},#a07c2e)`, color: "#fff" }}>
-                    Confirm Booking
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="px-6 py-3.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all hover:opacity-70"
+                    style={{ background: "rgba(27,67,50,0.08)", color: "#1b4332" }}
+                  >
+                    <ArrowLeft size={15} /> Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3.5 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                    style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a2e)" }}
+                  >
+                    Confirm Booking <Check size={16} />
                   </button>
                 </div>
-              </motion.div>
+              </motion.form>
             )}
           </AnimatePresence>
         </div>

@@ -18,32 +18,41 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    const handler = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  const solid = scrolled || !isHome;
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+      className="fixed top-0 inset-x-0 z-50 transition-all duration-500"
       style={{
-        background: scrolled ? "rgba(18,35,24,0.97)" : "linear-gradient(to bottom,rgba(0,0,0,0.45),transparent)",
-        backdropFilter: scrolled ? "blur(14px)" : "none",
-        boxShadow: scrolled ? "0 2px 30px rgba(0,0,0,0.25)" : "none",
+        background: solid ? "rgba(27,67,50,0.97)" : "transparent",
+        backdropFilter: solid ? "blur(14px)" : "none",
+        borderBottom: solid ? "1px solid rgba(201,168,76,0.15)" : "none",
+        boxShadow: solid ? "0 2px 24px rgba(0,0,0,0.25)" : "none",
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between py-4">
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="text-xl font-bold" style={{ fontFamily: "'Playfair Display',serif", color: "#c9a84c" }}>
+      <div className="max-w-7xl mx-auto px-5 lg:px-10 flex items-center justify-between h-[72px]">
+        {/* Logo */}
+        <Link href="/" className="flex flex-col leading-none group">
+          <span
+            className="text-xl font-bold tracking-wide transition-opacity group-hover:opacity-80"
+            style={{ fontFamily: "var(--font-playfair, serif)", color: "#c9a84c" }}
+          >
             Baekar Stays
           </span>
-          <span className="text-[10px] tracking-[0.25em] uppercase mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <span className="text-[10px] tracking-[0.2em] uppercase text-white/50 mt-0.5">
             Old Manali
           </span>
         </Link>
 
+        {/* Desktop */}
         <nav className="hidden md:flex items-center gap-1">
           {links.map((l) => (
             <Link
@@ -55,7 +64,7 @@ export default function Navbar() {
               {pathname === l.href && (
                 <motion.span
                   layoutId="nav-underline"
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-2/3 rounded-full"
+                  className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
                   style={{ background: "#c9a84c" }}
                 />
               )}
@@ -63,44 +72,57 @@ export default function Navbar() {
           ))}
           <Link
             href="/booking"
-            className="ml-3 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:shadow-lg hover:scale-105"
-            style={{ background: "linear-gradient(135deg,#c9a84c,#a07c2e)" }}
+            className="ml-3 px-5 py-2 rounded-full text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+            style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a2e)" }}
           >
             Book Now
           </Link>
         </nav>
 
-        <button className="md:hidden text-white p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="md:hidden p-2 text-white"
+          aria-label="Toggle menu"
+        >
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
+      {/* Mobile drawer */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            style={{ background: "rgba(12,28,18,0.98)", backdropFilter: "blur(16px)" }}
+          <motion.nav
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden px-5 pb-5 pt-2 flex flex-col gap-1"
+            style={{ background: "rgba(18,40,30,0.98)", backdropFilter: "blur(16px)" }}
           >
-            <nav className="flex flex-col px-6 py-5 gap-1">
-              {[...links, { href: "/booking", label: "Book Now" }].map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="py-3 text-sm font-medium border-b transition-colors"
-                  style={{
-                    color: pathname === l.href ? "#c9a84c" : "rgba(255,255,255,0.8)",
-                    borderColor: "rgba(255,255,255,0.07)",
-                  }}
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-          </motion.div>
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="py-3 text-sm font-medium border-b transition-colors"
+                style={{
+                  color: pathname === l.href ? "#c9a84c" : "rgba(255,255,255,0.75)",
+                  borderColor: "rgba(255,255,255,0.07)",
+                }}
+              >
+                {l.label}
+              </Link>
+            ))}
+            <Link
+              href="/booking"
+              onClick={() => setOpen(false)}
+              className="mt-3 py-3 rounded-full text-sm font-semibold text-white text-center"
+              style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a2e)" }}
+            >
+              Book Now
+            </Link>
+          </motion.nav>
         )}
       </AnimatePresence>
     </header>

@@ -1,118 +1,209 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Users, Check, ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Users, Check, Star } from "lucide-react";
-
-const FOREST = "#1e3a2f";
-const GOLD = "#c9a84c";
 
 const rooms = [
   {
-    name: "6-Bed Dormitory",
+    title: "6-Bed Dormitory",
     short: "6-Bed Dorm",
     price: "₹400",
-    tag: "Most Popular",
+    priceNote: "per bed / night",
+    badge: "Best Value",
+    badgeColor: "#2d6a4f",
+    available: true,
     img: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=900&q=80",
-    guests: 6,
-    desc: "Our most social space — meet fellow travellers from around the world. Each bed comes with a personal locker, reading light, and power outlet. Perfect for budget explorers who love the hostel community vibe.",
-    features: ["Personal locker per guest","Reading lamp & power outlet","Shared modern bathroom","Free WiFi","Linen & towel included","Air cooling"],
+    desc: "Our most social room — perfect for solo travellers looking to meet people, share stories, and explore Manali together. Bunk beds, individual lockers, and a communal vibe that's second to none.",
+    features: [
+      "6 comfortable bunk beds",
+      "Individual reading lamps",
+      "Personal lockers with key",
+      "Shared en-suite bathrooms",
+      "Free WiFi",
+      "Linen & towels included",
+    ],
   },
   {
-    name: "4-Bed Dormitory",
+    title: "4-Bed Dormitory",
     short: "4-Bed Dorm",
     price: "₹600",
-    tag: "Great Value",
-    img: "https://images.unsplash.com/photo-1520637836862-4d197d17c939?w=900&q=80",
-    guests: 4,
-    desc: "A smaller, more intimate dorm experience. Ideal for small friend groups or those who prefer a quieter shared space while still enjoying the hostel community feeling.",
-    features: ["More space per person","Personal locker & power outlet","Shared modern bathroom","Free WiFi","Linen & towel included","Air cooling"],
+    priceNote: "per bed / night",
+    badge: "Popular",
+    badgeColor: "#1b4332",
+    available: true,
+    img: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=900&q=80",
+    desc: "A quieter, more intimate dormitory — great for small groups of friends or solo travellers who prefer a cozier space without giving up the social hostel atmosphere.",
+    features: [
+      "4 premium bunk beds",
+      "Larger personal lockers",
+      "Reading lamps & USB ports",
+      "Shared en-suite bathrooms",
+      "Free WiFi",
+      "Daily housekeeping",
+    ],
   },
   {
-    name: "Deluxe Room",
-    short: "Deluxe Room",
-    price: "₹1,200",
-    tag: "2 Available",
-    img: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=900&q=80",
-    guests: 2,
-    desc: "Private comfort with mountain character. Our Deluxe Rooms feature a double bed, en-suite bathroom, and Himachali-inspired decor. Mountain views guaranteed.",
-    features: ["Private double bed","En-suite bathroom with hot water","Mountain view window","Free WiFi","Complimentary breakfast","Room service"],
+    title: "Deluxe Room",
+    short: "Deluxe",
+    price: "₹1,800",
+    priceNote: "per room / night",
+    badge: "2 Available",
+    badgeColor: "#c9a84c",
+    available: true,
+    img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80",
+    desc: "Your private mountain retreat. The Deluxe Room offers a king-size bed, mountain-facing windows, and thoughtful touches that make it feel like a boutique hotel — at hostel prices.",
+    features: [
+      "King-size bed with premium linen",
+      "Mountain-view window",
+      "Private en-suite bathroom",
+      "Hot shower & toiletries",
+      "Smart TV & Free WiFi",
+      "Daily housekeeping & towels",
+    ],
   },
   {
-    name: "Luxury Room",
-    short: "Luxury Room",
-    price: "₹2,000",
-    tag: "Exclusive",
-    img: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80",
-    guests: 2,
-    desc: "The pinnacle of comfort at Baekar Stays. Our single Luxury Room offers a plush king bed, panoramic Himalayan views, premium bath amenities, and priority access to all experiences.",
-    features: ["King-size plush bed","Panoramic Himalayan view","Premium en-suite bathroom","Welcome kit & toiletries","Daily complimentary breakfast","Priority experience booking"],
+    title: "Luxury Room",
+    short: "Luxury",
+    price: "₹3,200",
+    priceNote: "per room / night",
+    badge: "Only 1 Left",
+    badgeColor: "#9a7a2e",
+    available: true,
+    img: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=900&q=80",
+    desc: "Our crown jewel. Spacious, serene, and utterly spectacular. Wake up to panoramic Himalayan views, soak in the deep-soak bath, and experience what a true luxury mountain escape feels like.",
+    features: [
+      "Super-king bed & premium decor",
+      "Panoramic Himalayan view",
+      "Spacious private bathroom",
+      "Deep-soak bath & rain shower",
+      "Seating area & Smart TV",
+      "Complimentary welcome drink",
+    ],
   },
+];
+
+const policies = [
+  { label: "Check-in", value: "1:00 PM" },
+  { label: "Check-out", value: "10:00 AM" },
+  { label: "Front Desk", value: "24 / 7" },
+  { label: "Cancellation", value: "48h notice" },
+  { label: "Pets", value: "Welcome ✦" },
+  { label: "Min. Age", value: "18+" },
 ];
 
 export default function RoomsPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative pt-36 pb-20 px-6 flex items-end"
-        style={{ background: `linear-gradient(135deg,#0e2218 0%,${FOREST} 60%,#2d5540 100%)`, minHeight: 320 }}>
-        <div className="max-w-4xl mx-auto w-full">
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="text-xs uppercase tracking-widest mb-3" style={{ color: GOLD }}>Accommodation</motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-6xl font-bold text-white mb-3" style={{ fontFamily: "'Playfair Display',serif" }}>
-            Rooms & Rates
-          </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
-            From social dorms to exclusive luxury — find your perfect mountain retreat.
-          </motion.p>
-        </div>
+      {/* Header */}
+      <section
+        className="pt-36 pb-20 px-5 text-center relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #0f2d1e 0%, #1b4332 60%, #2d6a4f 100%)" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "#c9a84c" }}>
+            Where You'll Sleep
+          </p>
+          <h1
+            className="text-5xl font-bold text-white mb-4"
+            style={{ fontFamily: "var(--font-playfair, serif)" }}
+          >
+            Our Rooms
+          </h1>
+          <div
+            className="h-px max-w-[80px] mx-auto mb-5"
+            style={{ background: "linear-gradient(90deg, transparent, #c9a84c, transparent)" }}
+          />
+          <p className="text-white/65 max-w-xl mx-auto text-base">
+            From social dorms to panoramic luxury suites — every room is designed with
+            comfort, character, and the mountains in mind.
+          </p>
+        </motion.div>
       </section>
 
-      {/* Room cards */}
-      <section className="py-20 px-6 max-w-7xl mx-auto space-y-14">
+      {/* Rooms */}
+      <section className="py-20 px-5 max-w-6xl mx-auto space-y-16">
         {rooms.map((room, i) => (
-          <ScrollReveal key={room.name} delay={0.08}>
-            <div className={`grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-md transition-shadow hover:shadow-xl`}
-              style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)" }}>
-              <div className={`relative overflow-hidden min-h-[300px] lg:min-h-[400px] ${i % 2 === 1 ? "lg:order-2" : ""}`}>
-                <img src={room.img} alt={room.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 absolute inset-0" />
-                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-bold"
-                  style={{ background: GOLD, color: "#fff" }}>{room.tag}</div>
-                <div className="absolute bottom-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
-                  style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}>
-                  <Users size={11} /><span>Up to {room.guests} guests</span>
+          <ScrollReveal key={room.title} delay={0.05}>
+            <div
+              className={`grid lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden shadow-lg ${i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""}`}
+              style={{ border: "1px solid rgba(0,0,0,0.07)" }}
+            >
+              {/* Image */}
+              <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[360px]">
+                <Image
+                  src={room.img}
+                  alt={room.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                <div className="absolute top-4 left-4">
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                    style={{ background: room.badgeColor }}
+                  >
+                    {room.badge}
+                  </span>
                 </div>
               </div>
-              <div className={`p-8 lg:p-12 flex flex-col justify-center ${i % 2 === 1 ? "lg:order-1" : ""}`}>
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>Available Now</p>
-                    <h2 className="text-3xl font-bold" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>{room.name}</h2>
+
+              {/* Details */}
+              <div className="p-8 lg:p-10 flex flex-col justify-between" style={{ background: "#fff" }}>
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <h2
+                      className="text-3xl font-bold leading-tight"
+                      style={{ fontFamily: "var(--font-playfair, serif)", color: "#1b4332" }}
+                    >
+                      {room.title}
+                    </h2>
+                    <div className="text-right shrink-0 ml-4">
+                      <p className="text-2xl font-bold" style={{ color: "#c9a84c" }}>{room.price}</p>
+                      <p className="text-xs text-gray-400">{room.priceNote}</p>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-3xl font-bold" style={{ color: GOLD }}>{room.price}</div>
-                    <div className="text-xs" style={{ color: "#aaa" }}>per night</div>
-                  </div>
+
+                  <div
+                    className="h-px mb-5"
+                    style={{ background: "linear-gradient(90deg, #c9a84c, transparent)" }}
+                  />
+
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6">{room.desc}</p>
+
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-8">
+                    {room.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                        <Check size={14} style={{ color: "#2d6a4f" }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div style={{ width: 40, height: 2, background: `linear-gradient(90deg,${GOLD},transparent)`, marginBottom: "1.1rem" }} />
-                <p className="text-sm leading-relaxed mb-6" style={{ color: "#555" }}>{room.desc}</p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-8">
-                  {room.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#444" }}>
-                      <Check size={13} style={{ color: GOLD }} />{f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex gap-3 flex-wrap">
-                  <Link href="/booking"
-                    className="px-7 py-3 rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:scale-105"
-                    style={{ background: FOREST, color: "#fff" }}>Book {room.short}</Link>
-                  <Link href="/contact"
-                    className="px-7 py-3 rounded-full text-sm font-semibold transition-all"
-                    style={{ border: `1.5px solid ${FOREST}`, color: FOREST }}>Enquire</Link>
+
+                <div className="flex items-center gap-4">
+                  <Link
+                    href={`/booking?room=${encodeURIComponent(room.short)}`}
+                    className="flex-1 text-center py-3 rounded-full font-semibold text-sm text-white transition-all hover:opacity-90"
+                    style={{ background: "linear-gradient(135deg, #1b4332, #2d6a4f)" }}
+                  >
+                    Book This Room
+                  </Link>
+                  <div
+                    className="flex items-center gap-1.5 text-xs px-3 py-3 rounded-full"
+                    style={{ background: "#f0ebe1", color: "#2d6a4f" }}
+                  >
+                    <Users size={13} />
+                    <span className="font-medium">
+                      {room.title.includes("6") ? "Up to 6" : room.title.includes("4") ? "Up to 4" : "2 Guests"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -121,27 +212,30 @@ export default function RoomsPage() {
       </section>
 
       {/* Policies */}
-      <section className="py-20 px-6" style={{ background: "#f0ebe0" }}>
+      <section className="py-20 px-5" style={{ background: "#f0ebe1" }}>
         <div className="max-w-4xl mx-auto">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-center mb-10" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>Stay Policies</h2>
+          <ScrollReveal className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "#c9a84c" }}>House Rules</p>
+            <h2
+              className="text-3xl font-bold"
+              style={{ fontFamily: "var(--font-playfair, serif)", color: "#1b4332" }}
+            >
+              Policies & Timings
+            </h2>
+            <span className="gold-bar mt-4" />
           </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { title: "Check-in / Check-out", items: ["Check-in: 1:00 PM","Check-out: 10:00 AM","Early check-in on request","24/7 front desk"] },
-              { title: "What's Included", items: ["Free WiFi","Linen & towel","Luggage storage","Access to all common areas"] },
-              { title: "House Rules", items: ["Pet friendly","No smoking indoors","Quiet hours: 11 PM","Visitors welcome until 10 PM"] },
-            ].map((p) => (
-              <ScrollReveal key={p.title} delay={0.08}>
-                <div className="p-6 rounded-2xl" style={{ background: "#fff", border: "1px solid rgba(201,168,76,0.14)" }}>
-                  <h3 className="font-bold mb-4" style={{ fontFamily: "'Playfair Display',serif", color: FOREST }}>{p.title}</h3>
-                  <ul className="space-y-2">
-                    {p.items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm" style={{ color: "#555" }}>
-                        <span style={{ color: GOLD, fontSize: "0.4rem" }}>◆</span>{item}
-                      </li>
-                    ))}
-                  </ul>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {policies.map((p, i) => (
+              <ScrollReveal key={p.label} delay={i * 0.07}>
+                <div
+                  className="p-5 rounded-xl text-center"
+                  style={{ background: "#fff", border: "1px solid rgba(27,67,50,0.08)" }}
+                >
+                  <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">{p.label}</p>
+                  <p className="text-lg font-bold" style={{ color: "#1b4332", fontFamily: "var(--font-playfair, serif)" }}>
+                    {p.value}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
@@ -150,18 +244,19 @@ export default function RoomsPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 text-center" style={{ background: FOREST }}>
+      <section className="py-20 px-5 text-center" style={{ background: "#1b4332" }}>
         <ScrollReveal>
-          <div className="flex justify-center gap-1 mb-4">
-            {[...Array(5)].map((_,i) => <Star key={i} size={18} fill={GOLD} color={GOLD} />)}
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Playfair Display',serif" }}>
-            Ready to Experience the Vibe?
+          <h2 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-playfair, serif)" }}>
+            Ready to Book?
           </h2>
-          <p className="mb-8 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Rooms fill up fast — book yours today.</p>
-          <Link href="/booking"
-            className="inline-block px-9 py-4 rounded-full text-sm font-semibold uppercase tracking-wide transition-all hover:shadow-2xl hover:scale-105"
-            style={{ background: `linear-gradient(135deg,${GOLD},#a07c2e)`, color: "#fff" }}>Book Now</Link>
+          <p className="text-white/60 mb-8">Beds fill up fast — especially in peak season.</p>
+          <Link
+            href="/booking"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a2e)" }}
+          >
+            Reserve Your Spot <ArrowRight size={15} />
+          </Link>
         </ScrollReveal>
       </section>
     </>
