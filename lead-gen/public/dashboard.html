@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lead Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #14141d; --surface-2: #1c1c28;
+    --border: #25253a; --text: #f5f5fa; --muted: #9999ad;
+    --accent: #7c5cff; --success: #2dd4bf; --warn: #fbbf24; --error: #ff5470;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header .meta { color: var(--muted); font-size: 13px; }
+  .container { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .stat .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat .value { font-size: 28px; font-weight: 700; }
+  .stat.new .value { color: var(--accent); }
+  .stat.contacted .value { color: var(--warn); }
+  .stat.qualified .value { color: var(--success); }
+  .stat.closed .value { color: var(--muted); }
+
+  .controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  input, select { padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: inherit; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  #search { flex: 1; min-width: 240px; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { background: var(--surface-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface-2); }
+
+  .score { display: inline-block; padding: 3px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; min-width: 36px; text-align: center; }
+  .score.hot { background: rgba(255, 84, 112, 0.15); color: var(--error); }
+  .score.warm { background: rgba(251, 191, 36, 0.15); color: var(--warn); }
+  .score.cold { background: rgba(153, 153, 173, 0.15); color: var(--muted); }
+
+  .status-select { padding: 6px 10px; font-size: 13px; }
+  .empty { text-align: center; padding: 60px; color: var(--muted); }
+  .name { font-weight: 600; }
+  .email { color: var(--muted); font-size: 13px; }
+  .actions button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .actions button:hover { color: var(--text); border-color: var(--accent); }
+  details { background: var(--surface-2); padding: 12px; border-radius: 8px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+  summary { cursor: pointer; color: var(--accent); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 Lead Dashboard</h1>
+  <div class="meta" id="meta">Loading…</div>
+</div>
+
+<div class="container">
+  <div class="stats" id="stats"></div>
+  <div class="controls">
+    <input id="search" placeholder="Search by name, email, or company…" />
+    <select id="filterStatus">
+      <option value="">All statuses</option>
+      <option>New</option><option>Contacted</option><option>Qualified</option><option>Closed</option>
+    </select>
+    <select id="sortBy">
+      <option value="created_desc">Newest first</option>
+      <option value="created_asc">Oldest first</option>
+      <option value="score_desc">Highest score</option>
+    </select>
+  </div>
+  <div id="tableWrap"></div>
+</div>
+
+<script>
+let leads = [];
+
+async function load() {
+  const res = await fetch('/api/leads');
+  const out = await res.json();
+  leads = out.leads || [];
+  document.getElementById('meta').textContent = `${leads.length} total leads`;
+  render();
+}
+
+function statusCounts() {
+  const c = { New: 0, Contacted: 0, Qualified: 0, Closed: 0 };
+  leads.forEach(l => { c[l.status] = (c[l.status] || 0) + 1; });
+  return c;
+}
+
+function render() {
+  const c = statusCounts();
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="label">Total</div><div class="value">${leads.length}</div></div>
+    <div class="stat new"><div class="label">New</div><div class="value">${c.New}</div></div>
+    <div class="stat contacted"><div class="label">Contacted</div><div class="value">${c.Contacted}</div></div>
+    <div class="stat qualified"><div class="label">Qualified</div><div class="value">${c.Qualified}</div></div>
+    <div class="stat closed"><div class="label">Closed</div><div class="value">${c.Closed}</div></div>
+  `;
+
+  const q = document.getElementById('search').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const sort = document.getElementById('sortBy').value;
+
+  let rows = leads.filter(l => {
+    const m = (l.name + l.email + l.company).toLowerCase().includes(q);
+    return m && (!status || l.status === status);
+  });
+
+  rows.sort((a, b) => {
+    if (sort === 'score_desc') return b.score - a.score;
+    if (sort === 'created_asc') return a.created_at.localeCompare(b.created_at);
+    return b.created_at.localeCompare(a.created_at);
+  });
+
+  const wrap = document.getElementById('tableWrap');
+  if (!rows.length) { wrap.innerHTML = '<div class="empty">No leads match your filters.</div>'; return; }
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Lead</th><th>Company</th><th>Role</th><th>Budget</th><th>Score</th><th>Status</th><th>Date</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(l => `
+          <tr>
+            <td>
+              <div class="name">${escape(l.name)}</div>
+              <div class="email">${escape(l.email)}</div>
+              <details><summary>Message</summary><div>${escape(l.message)}</div></details>
+            </td>
+            <td>${escape(l.company)}</td>
+            <td>${escape(l.role)}</td>
+            <td>${escape(l.budget)}</td>
+            <td><span class="score ${scoreClass(l.score)}">${l.score}</span></td>
+            <td>
+              <select class="status-select" data-id="${l.id}">
+                ${['New','Contacted','Qualified','Closed'].map(s => `<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
+              </select>
+            </td>
+            <td>${formatDate(l.created_at)}</td>
+            <td class="actions"><button data-mailto="${escape(l.email)}" data-name="${escape(l.name)}">✉ Email</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  wrap.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      await fetch(`/api/leads/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: e.target.value })
+      });
+      load();
+    });
+  });
+  wrap.querySelectorAll('[data-mailto]').forEach(b => {
+    b.addEventListener('click', () => {
+      const name = b.dataset.name.split(' ')[0];
+      window.location.href = `mailto:${b.dataset.mailto}?subject=Re: your strategy call request&body=Hi ${name},%0D%0A%0D%0AThanks for reaching out.`;
+    });
+  });
+}
+
+function scoreClass(s) { return s >= 70 ? 'hot' : s >= 40 ? 'warm' : 'cold'; }
+function formatDate(s) { return new Date(s).toLocaleDateString(undefined, { month:'short', day:'numeric' }); }
+function escape(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filterStatus').addEventListener('change', render);
+document.getElementById('sortBy').addEventListener('change', render);
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

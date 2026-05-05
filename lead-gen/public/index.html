@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Book a Strategy Call — Antigravity Consulting</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #14141d;
+    --border: #25253a;
+    --text: #f5f5fa;
+    --muted: #9999ad;
+    --accent: #7c5cff;
+    --accent-hover: #6a48f5;
+    --success: #2dd4bf;
+    --error: #ff5470;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(124, 92, 255, 0.15), transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(45, 212, 191, 0.1), transparent 50%);
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  @media (max-width: 768px) { .hero { grid-template-columns: 1fr; gap: 40px; } }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(124, 92, 255, 0.15);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    border: 1px solid rgba(124, 92, 255, 0.3);
+  }
+  h1 { font-size: 48px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 20px; }
+  h1 span { background: linear-gradient(135deg, var(--accent), var(--success)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .subtitle { font-size: 18px; color: var(--muted); margin-bottom: 32px; }
+  .points { list-style: none; }
+  .points li { padding: 8px 0; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+  .points li::before { content: "✓"; color: var(--success); font-weight: bold; }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .form-card h2 { font-size: 22px; margin-bottom: 6px; }
+  .form-card .lede { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--muted); }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 90px; }
+  button {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 8px;
+  }
+  button:hover:not(:disabled) { background: var(--accent-hover); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .status { margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 14px; display: none; }
+  .status.show { display: block; }
+  .status.success { background: rgba(45, 212, 191, 0.1); color: var(--success); border: 1px solid rgba(45, 212, 191, 0.3); }
+  .status.error { background: rgba(255, 84, 112, 0.1); color: var(--error); border: 1px solid rgba(255, 84, 112, 0.3); }
+  .footer { margin-top: 80px; text-align: center; color: var(--muted); font-size: 13px; }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <div>
+      <span class="badge">B2B Strategy Consulting</span>
+      <h1>Turn complex problems into <span>scalable systems</span>.</h1>
+      <p class="subtitle">We help B2B teams ship faster, automate operations, and unlock growth through pragmatic strategy and engineering.</p>
+      <ul class="points">
+        <li>30-min discovery call, no pitch</li>
+        <li>Tailored roadmap within 48 hours</li>
+        <li>Trusted by 40+ B2B teams</li>
+      </ul>
+    </div>
+
+    <div class="form-card">
+      <h2>Book a free strategy call</h2>
+      <p class="lede">Tell us about your business — we'll respond within one business day.</p>
+      <form id="leadForm">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" required autocomplete="organization" />
+        </div>
+        <div class="field">
+          <label for="role">Your role</label>
+          <select id="role" name="role" required>
+            <option value="">Select…</option>
+            <option>Founder / CEO</option>
+            <option>VP / Director</option>
+            <option>Manager / Lead</option>
+            <option>Individual Contributor</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="budget">Project budget (USD)</label>
+          <select id="budget" name="budget" required>
+            <option value="">Select…</option>
+            <option>Under $5k</option>
+            <option>$5k–$25k</option>
+            <option>$25k–$100k</option>
+            <option>$100k+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">What are you trying to solve?</label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+        <button type="submit" id="submitBtn">Request strategy call →</button>
+        <div class="status" id="status"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer">
+    Already a client? <a href="dashboard.html">Open the lead dashboard →</a>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('leadForm');
+const status = document.getElementById('status');
+const btn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  status.className = 'status';
+
+  const data = Object.fromEntries(new FormData(form));
+  data.source = 'landing-page';
+
+  try {
+    const res = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Something went wrong');
+
+    status.className = 'status show success';
+    status.textContent = `Thanks ${data.name.split(' ')[0]} — we'll reach out within 1 business day.`;
+    form.reset();
+  } catch (err) {
+    status.className = 'status show error';
+    status.textContent = err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Request strategy call →';
+  }
+});
+</script>
+</body>
+</html>
